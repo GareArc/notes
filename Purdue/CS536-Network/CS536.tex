@@ -20,13 +20,126 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Main Body
-\section{The first section of my article}
+\section{Introduction} 
+The lecture notes of this section is 
+\href{https://www.cs.purdue.edu/homes/park/cs536/intro-536-24s-a.pdf}{lec1} and 
+\href{https://www.cs.purdue.edu/homes/park/cs536/intro-536-24s-b.pdf}{lec2}.
+
+\subsection{Components of a computer network}
+\begin{enumerate}
+    \item host devices (PC, server, laptop)
+    \item routers \& switches (IP router, Ethernet switches, WiFi routers)
+        \begin{itemize}
+            \item The global internet has 2 types of routing going on: 1. \textbf{Intranet}: routing within a domain. 2. \textbf{Internet}: routing between domains.
+        \end{itemize}
+    \item links (wires, fiber, quantum)
+        \begin{itemize}
+            \item Confidentiality. We need to encrypt the data.
+            \item Authentication. We need to make sure the data is from the right source.
+            \item Integrity. We need to make sure the data is not modified.
+            \item Bounded by the speed of light. For wireless or wired today, we use eletromagnetic waves.
+            FDM (Frequency Division Multiplexing) $\rightarrow$ OFDM (Orthogonal Frequency Division Multiplexing)
+        \end{itemize}
+    \item protocals (IP, TCP, UDP, ...). All protocals are part of an OS (in kernel mode). Protocal helps connect different parts of the network. Examples from low- to high-layer:
+        \begin{itemize}
+            \item NIC: Network Interface Card. Such as Ethernet card, WALN card, etc. It is read only memory code. \textbf{Lower half of the OS}.
+            \item Device Drivers. \textbf{Lower half of the OS}.
+            \item ARP, RARP. \textbf{OS}.
+            \item IP. \textbf{OS}.
+            \item OSPF, RIP, BGP. OFPF, RIP: within organizations (intra-domain). BGP: global Internet (inter-domain). \textbf{OS}.
+            \item TCP, UDP. \textbf{OS}.
+            \item DNS, HTTP, SMTP, SNMP, SSL. \textbf{Application}.
+            \item SSH, web browser, PHP, P2P, YouTube etc. \textbf{Application}.
+        \end{itemize}
+    \item applications (DNS, HTTP, SMTP, SSL, ...)
+    \item humans and bots (spam, DoS, worm, ...)
+\end{enumerate}
+
 \begin{info}
-    The formula is: \red{可以打中文}
-    \begin{equation}
-    \label{eqa:1}
-        A=\sum_{i=1}^3 i^2
-    \end{equation}
+    1, 2 and 3 are \textbf{hardware}, 4 and 5 are \textbf{software}.
 \end{info}
+
+\subsection{Communication}
+\begin{itemize}[leftmargin=*]
+    \item Types of information transmition: \textbf{analog} and \textbf{digital}.
+    \item In today's networks, the content is digital (bits), but the transmission is analog (eletromagnetic waves) $\rightarrow$ use analog information to transmit digital information.
+\end{itemize}
+
+Capability of network and end systems:
+\begin{enumerate}
+    \item information aabstraction:
+        \begin{itemize}
+            \item digital content representatoin: encode/decode information.
+            \item analog rerpesentation and transmission of digital content: analog signals over physical media.
+        \end{itemize}
+    \item information protection:
+        \begin{itemize}
+            \item deal with infornation corruption (bits flip). Use BER (Bit Error Rate) to measure the quality of the link.
+            \item deal with information loss(packet drop at routers and hosts). e.g., culprit: buffer overflow.
+            \item security. e.g., confidentiality, authentication, integrity, protect from infrustracture attacks such as DoS.
+        \end{itemize}
+    \item performance:
+        \begin{itemize}
+            \item fast transmission: throughputs (bps), bottleneck can be software. 
+            
+            Why 1Gbps Ethernet is not 1Gbps throughputs? TCP is not one-time transmission. TCP is a \textbf{reliable} protocal, which means it will make sure the data is delivered. TCP will send a packet, wait for the ACK, and then send the next packet.
+
+            \item information latency: physical distance, buffering of messages at routers and hosts. Bad for real-time applications such as video streaming, online gaming, etc.
+        \end{itemize}
+\end{enumerate}
+
+\subsection{Types of networks}
+\begin{enumerate}
+    \item connectivity:
+        \begin{itemize}
+            \item point-to-point
+            \item multi-access (broadcast)
+            \item internetwork (network of networks such as Purdue's campus network)
+        \end{itemize}
+    \item medium:
+        \begin{itemize}
+            \item wired
+            \item wireless
+        \end{itemize}
+    \item locaiton:
+        \begin{itemize}
+            \item stationary
+            \item mobile
+        \end{itemize}
+\end{enumerate}
+
+\subsubsection{Point-to-point link}
+\imgc{p2p.png}{Point-to-point link}{0.5}
+\begin{itemize}[leftmargin=*]
+    \item NIC at A, NIC at B
+    \item A and B don't need names in principle.
+\end{itemize}
+
+\subsubsection{Multi-access link}
+\imgc{multi-access.png}{Multi-access link}{0.5}
+\begin{itemize}[leftmargin=*]
+    \item sometimes called bus
+    \item names (i.e., addressing) necessary, called local area network (LAN) addresses.
+    \item key issue of multi-access link communication: access
+    control.
+        \begin{itemize}
+            \item link is a shared resource.
+            \item myriad of LAN technologies and protocols.
+        \end{itemize}
+\end{itemize}  
+
+\subsubsection{Internetwork}
+\imgc{internetwork.png}{Internetwork}{0.5}
+\begin{itemize}[leftmargin=*]
+    \item recursive definition: network of networks.
+    \item everything is the composition of point-to-point links and multi-access links.
+    \item additional complications:
+        \begin{itemize}
+            \item new names beyond LAN addresses: in principle, LAN addresses are unique and suffice.In practice, new names (i.e., network addresses) bring benefits despite overhead. 
+            \item protocol translation: LANs speak different languages (e.g., Ethernet and
+            WLAN)
+            \item location management: mobility. e.g., handoff of mobile host among multiple networks.
+        \end{itemize}
+\end{itemize}
 
 \end{document}

@@ -148,7 +148,7 @@
 % Figure
 \newcommand{\imgc}[3]{%
     \begin{figure}[H]
-    	\center\includegraphics[width=#3]{#1}
+    	\center\includegraphics[width=#3\textwidth]{imgs/#1}
     	\caption{#2}
     	\label{fig:#1}
     \end{figure}
