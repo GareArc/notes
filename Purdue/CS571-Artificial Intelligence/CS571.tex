@@ -1,0 +1,234 @@
+\documentclass{ainote}
+
+%%%%Basic Info%%%%
+\author{\ccLogo \,\,Xiyuan Chen}
+\title{\textsc{CS57100 Artificial Intelligence}}
+\date{Fall Term, 2023}
+%%%%%%%%%%%%%%%%%%
+
+%%%%Document Beginner%%%%
+\begin{document}
+\maketitle
+\doclicenseThis
+\section*{Information}
+\begin{itemize}
+	\item Syllabus can be found through \href{https://purdue.brightspace.com/d2l/le/content/832225/Home}{this link. }
+	\item There will be office hours every weekday. :D
+\end{itemize}
+\tableofcontents
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Main Body
+\section{Search}
+Solving problems by searching through possible solutions.
+
+\underline{Technique for searching}:
+\begin{itemize}
+    \item Tree search
+    \item Exhaustive vs. heuristic
+    \item Dynamic programming
+    \item A-star
+\end{itemize}
+
+\underline{Problem Types}:
+\begin{itemize}
+    \item \textbf{Deterministic, fully observable}: Agent knows exactly which state it will be in; solutions in a sequence $\Longrightarrow$ \blue{single-state problem}
+    \item \textbf{Non-observable}: Agent may have no idea where it is; solution (if any) is a sequence $\Longrightarrow$ \blue{conformant problem}
+    \item \textbf{Nondeterministic and/or partially observable}: percepts provide \brown{new} information about current state, solution is a contingent plan or a policy often \brown{interleave} search, execution $\Longrightarrow$ \blue{contingency problem}
+    \item \textbf{Unknown state space}: No info about the problem space. $\Longrightarrow$ \blue{exploration problem("online")}
+\end{itemize}
+
+\subsection{Single-state problem}
+A single-state problem can be defined by:
+\begin{enumerate}
+    \item \textbf{Init State}: The starting state of the problem. e.g. the starting location in a route search task.
+    \item \textbf{Successor Function}: A set of action-state pairs which contains all states possible in the next action. e.g. $S(Arad)=\{(\text{Arad} \rightarrow \text{Zerind}),(\text{Arad} \rightarrow \text{Gareth})\dots\}$
+    \item \textbf{Goal Test}: A function for detecting if the current state is a goal. \hlyellow{There could be multiple goal states!}
+    \item \textbf{Path Cost}: (additive), keep track of the total cost of the path.
+    \item \textbf{Solution}: A sequence of actions leading from the initial state to a goal state.
+\end{enumerate}
+
+\img{1.1-search_example.png}{Example of a single-state problem}
+
+\subsection{Tree search algorithm}
+A \textbf{state} is a (representation of) a physical configuration.
+
+A \textbf{node} is a data structure constituting part of a search tree
+includes parent, children, depth, path cost $g(x)$.
+
+\hlyellow{States do not have parents, children, depth, or path cost!}
+
+The \textbf{\textit{Expand}} function creates new nodes, filling in the various fields and
+using the \textbf{\textit{SuccessorFn}} of the problem to create the corresponding states.
+\begin{info}
+    Basic idea:
+    \begin{enumerate}
+        \item Add the initial state node into a fringe.
+        \item Get the first node from the fringe. If no node is available in the queue, our search fails. If the node satisfies \textbf{\textit{Goal-Test}}, then return current path as the answer.
+        \item Find all possible actions of current node by calling \textbf{\textit{Expand}}. Add resulted nodes into the fringe. Then go back to step 2.
+    \end{enumerate}
+
+    The difference between search algorithms is \brown{the order of nodes} we get from the \textbf{\textit{Expand}} function. 
+\end{info}
+\hlred{$\imp$ Fringe can be any kind of data structure, e.g. Stack, Queue$\dots$}
+
+\img{1.2-algorithm.png}{Tree Search Algorithm}
+
+\subsubsection{Uninformed Search Strategies}
+A strategy is defined by picking the \brown{order of node expansion}.
+
+Metrics for evaluating a strategy:
+\begin{itemize}
+    \item \textbf{completeness}: does it always find a solution if one exists?
+    \item \textbf{time complexity}: number of nodes generated/expanded.
+    \item \textbf{space complexity}: maximum number of nodes in memory.
+    \item \textbf{optimality}: does it always find a least-cost solution?
+\end{itemize}
+
+In measuring the time and space complexity, we use:
+\begin{itemize}
+    \item \blue{$b$} $\longrightarrow$ maximum \textbf{branching factor} of the search tree.
+    \item \blue{$d$} $\longrightarrow$ depth of the \textbf{least-cos}t solution.
+    \item \blue{$m$} $\longrightarrow$ \textbf{maximum depth} of the state space \hlyellow{(may be $\infty$)}.
+\end{itemize}
+
+
+\subsubsection{Breath First Search(BFS)}
+The fringe is a \textbf{FIFO} data structure, e.g. Queue.
+
+Too easy I just won't cover it here.
+
+\underline{Properties}:
+\begin{itemize}
+    \item Complete? \green{Yes} if $b$ is finite. 
+    \item Time? $1+b+b^2+\dots+b^d+b(b^d-1)=\mc{O}(b^{d+1})$
+
+    \hlred{Notice the last term $b(b^d-1)$. BFS expands all the nodes \textbf{in the last level of the tree} regardless that there is no need for}
+    \hlred{further expansion, which will cause an exponential increase of space and time compared to the Iterative DFS discussed }
+    \hlred{later.}
+    \item Space? $\mc{O}(b^{d+1})$, keeps all nodes in memory.
+    \item Optimal? Yes (if cost = 1 per step); \textbf{not optimal in general}.
+\end{itemize}
+
+\subsubsection{Depth First Search(DFS)}
+The fringe is a \textbf{LIFO} data structure, e.g. Stack.
+
+Too easy I just won't cover it here.
+
+\underline{Properties}:
+\begin{itemize}
+    \item Complete? \red{No}: fails in infinite-depth spaces
+    \item Time? $\mc{O}(b^m)$, terrible if $m$ is much larger than $d$.
+    \item Space? $\mc{O}(bm)$, linear space !!
+    \item Optimal? \red{No}.
+\end{itemize}
+
+\subsubsection{Depth Limited Search}
+\label{Depth Limited Search}
+Limit the depth that original DFS can reach, thus solves the issue for infinite state search.
+
+\img{1.2.4-DLS.png}{Depth Limited Search}
+
+\subsubsection{Iterative Deepening Search}
+Iteritively increase the depth limit of \ref{Depth Limited Search} DLS so we can keep exploring until find the goal state while keeping the benifit of DLS.
+
+\img{1.2.5-IDS.png}{Iterative Deepening Search}
+
+\underline{Properties}:
+\begin{itemize}
+    \item Complete? \green{Yes}
+    \item Time? $(d+1)b^0+db^1+(d-1)b^2+\dots+b^d=\mc{O}(b^d)$.
+    \item Space? $\mc{O}(bd)$, linear space !!
+    \item Optimal? \green{Yes} \textbf{only if} step cost = 1.
+\end{itemize}
+
+\begin{info}
+    \textbf{Compare IDS with BFS:} IDS does better because \hlyellow{other nodes at depth d are not expanded}.
+
+    e.g. Numerical comparison for b= 10 and d = 5, solution at far right leaf:
+    
+    $N(\text{IDS})=50 + 400 + 3, 000 + 20, 000 + 100, 000 = 123, 450$
+
+    $N(\text{BFS})=10 + 100 + 1, 000 + 10, 000 + 100, 000 + 999, 990 = 1, 111, 100$
+\end{info}
+
+\subsubsection{Uniform-cost Search}
+Expand \textbf{least-cost} unexpanded node, e.g. priority queue. Fringe can be a queue ordered by \textbf{path cost}, lowest first.
+
+\img{1.2.5-UCS.png}{Uniform-cost Search}
+
+\underline{Properties}:
+\begin{itemize}
+    \item Complete? \green{Yes} if cost $\ge c$.
+    \item Time? \# of nodes with $g\le$ cost of optimal solution, $\mc{O}(b^{fC^*/cl})$ where $C^*$ is the cost of the optimal solution.
+    \item Space? \# of nodes with $g\le$ cost of optimal solution, $\mc{O}(b^{fC^*/cl})$
+    \item Optimal? \green{Yes} nodes expanded in increasing order of $g(n)$.
+\end{itemize}
+
+\subsection{Comparison}
+\begin{center}
+    \begin{tabular}{|l|c|c|c|c|c|c|}
+    \hline
+    Criterion&BFS&UCS&DFS&DLS&IDS&Bidirectional \\
+    \hline
+    Complete?&Yes&Yes&No&No&Yes&Yes\\
+    \hline
+    Optinal cost?&Yes&Yes&No&No&Yes&Yes\\
+    \hline
+    Time&$\mc{O}(b^d)$&$\mc{O}(b^{1+\lfloor C^*/\epsilon\rfloor})$&$\mc{O}(b^m)$&$\mc{O}(b^l)$&$\mc{O}(b^d)$&$\mc{O}(b^{b/2})$\\
+    \hline
+    Space&$\mc{O}(b^d)$&$\mc{O}(b^{1+\lfloor C^*/\epsilon\rfloor})$&$\mc{O}(bm)$&$\mc{O}(bl)$&$\mc{O}(bd)$&$\mc{O}(b^{b/2})$\\
+    \hline
+    
+    \end{tabular}
+\end{center}
+
+\subsection{Greedy Search}
+Include a heuristic function $h(n)$ which estimates the cost from $n$ to the closest goal. Greedily expand nodes that have the lowest heuristic cost. 
+
+\underline{Properties}:
+\begin{itemize}
+    \item Complete? \red{No}, can get stuck in loop.
+    \item Time? $\mc{O}(b^m)$ worst case.
+    \item Space? $\mc{O}(b^m)$, keeps all nodes in memory.
+    \item Optimal? \red{No}
+\end{itemize}
+
+\subsection{\hlyellow{$\star$}A* Search}
+Idea: avoid expanding paths that are already expensive.
+
+Evaluation function: $f(n)=g(n)+h(n)$, where $g(n)$ is the \textbf{cost so far} and $h(n)$ is the \textbf{heuristic cost}.
+\begin{itemize}
+    \item \textbf{\hlyellow{\red{Admissible}}}: a heuristic is admissible if $h(n)\le h^*(n)$, where $h^*(n)$ is the \textbf{true} cost from $n$. (Also $h(n)\ge 0$ and $h(G)=0$ for any goal $G$.) i.e. \hlyellow{$h(n)$ never \textbf{overestimates} the actual road distance.}
+    
+    \hlred{A* search with \textbf{admissible} heuristic is \textbf{optimal}!!}
+
+    \item \textbf{\hlyellow{\red{Consistent}}}: a heuristic is consistent if $h(n)\le c(n,a,n')+h(n')$. i.e. \hlyellow{$f(n)$ is \textbf{nondecreasing} along any path.}
+    
+    \hlred{\textbf{Consistency} is stronger than \textbf{admissible}}.
+
+    Prove:
+    \begin{align*}
+        f(n')&=g(n')+h(n') \\
+        &=g(n)+c(n,a,n')+g(n') \\
+        &\ge g(n)+h(n) \\
+        &=f(n)
+    \end{align*}
+\end{itemize} 
+
+\begin{info}
+    Prove the optimality of A* if \textbf{admissible}:
+
+    Suppose some suboptimal goal $G_2$ has been generated and is in the queue. Let $n$ be an unexpanded node on a shortest path to an optimal goal $G_1$.
+    \begin{align*}
+        f(G_2)&=g(G_2) \qquad\text{since $h(G_2)=0$} \\
+        &>g(G_1) \qquad\text{since $G_2$ is suboptimal, not optimal} \\
+        &\ge f(n) \qquad\text{since $h$ is admissible}
+    \end{align*}
+    Since $f(G_2)>f(n)$, $A^*$, by definition, will \textbf{never} select $G_2$ for expansion.
+
+    \textbf{Lemma:} $A^∗$ expands nodes in order of \hlyellow{increasing $f$ value}.
+\end{info}
+
+\end{document}

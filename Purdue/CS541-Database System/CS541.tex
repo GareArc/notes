@@ -1,0 +1,218 @@
+\documentclass{ainote}
+
+%%%%Basic Info%%%%
+\author{\ccLogo \,\,Xiyuan Chen}
+\title{\textsc{CS54100 
+Database Systems}}
+\date{Fall Term, 2023}
+%%%%%%%%%%%%%%%%%%
+
+%%%%Document Beginner%%%%
+\begin{document}
+\maketitle
+\doclicenseThis
+\section*{Information}
+\begin{itemize}
+        \item Instructor: \href{https://www.cs.purdue.edu/homes/aref/}{Walid G Aref}
+	\item Syllabus can be found through \href{https://purdue.brightspace.com/d2l/le/content/832018/Home}{this link. }
+	\item Group project is required. 
+\end{itemize}
+\tableofcontents
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Main Body
+\section{Introduction}
+\subsection{Focus of the course}
+In this course we are focusing on the DBMS Engine instead of using DBMS as a tool to build applications.
+\img{1.1-db_sys.png}{Database System Overview}
+\begin{info}
+    $\text{Database System}=\text{Application Program}+\text{DBMS}+\text{Database}$
+\end{info}
+
+\subsection{Course description}
+The course is organized along \green{three} main dimensions:
+\img{1.2-dimensions.png}{Three Main Dimensions}
+\begin{enumerate}
+    \item \textbf{Hardware}: Match new types of storage technologies, new CPU architectures etc.
+    \item \textbf{Relational}: How the \green{\textbf{Relational Database systems}} work. e.g. the one-size-fits-all philosophy.
+    \item \textbf{Beyond}: Customized and tailored systems for certain classes of applications and workloads. e.g. NoSQL System \& Big Data System.
+\end{enumerate}
+
+\subsection{Course Topics}
+The topics covered in this course include:
+\begin{itemize}
+    \item DBMS Concepts and Architecture.
+    \item \tdinfo{This is just a quick review.}{Overview of Relational Databases:} Relational Algebra, and Calculus, Modeling, Normalization, Tuning, and Security.
+    \item Storage Technologies: Volatile and Non-volatile.
+    \item Data Organization: Row and Column Stores.
+    \item Single and Multi-dimensional Indexing.
+    \item Extensible indexing: Generalized Search Trees.
+    \item Write-optimized Indexing Techniques.
+    \item Query Evaluation and Optimization.
+    \item NoSQL, Multi-model Databases, and Poly-Stores.
+    \item Transaction Management, Concurrency Control, and Recovery.
+    \item Big Data Streaming Systems: Concepts and Trends.
+    \item Main-memory Database Techniques.
+\end{itemize}
+
+\section{Data Models}
+\subsection{Evolution and the Relational models}
+\subsubsection{File systems vs. DBMS}
+Reasons for having DBMS:
+\begin{itemize}
+    \item Data independence: no need to change programs when the underlying data orgnizaton changes.
+    \item Data Integrity: data is consistent across the data files.
+    \item Concurrent access: avoid race and other inconsistencies.
+    \item Support transaction: make transaction as an atomic semantic unit.
+    \item Crash recovery: surviving crashes and data durability.
+    \item Security and access control: permissions and administration settings.
+\end{itemize}
+
+\subsubsection{Relational data model}
+\blue{\textbf{\textit{Relation}}}:
+\begin{itemize}
+    \item a table with rows and columns.
+    \item has \textbf{schema} that describes the data stored in the columns.
+\end{itemize}
+\blue{\textbf{\textit{Constraints}}}: guarantee the integrity of the related data.
+
+\blue{\textbf{\textit{Relational Database}}}: a set of inter-related tables (relations). Each relation contains two parts:
+\begin{enumerate}
+    \item \textbf{\textit{Schema}}: specifies
+        \begin{itemize}
+            \item the relation name
+            \item names and types of all attributes
+            \item the number of columns(attributes) is called \brown{\textbf{arity}} or \brown{\textbf{degree}}.
+            \item \brown{\textbf{type}} determines the set of acceptable values for the attribute.
+        \end{itemize}
+    \item \textbf{\textit{Instance}}: the actual data that fills the schema.
+        \begin{itemize}
+            \item it is a \textbf{set} of tuples, i.e. no order, no duplicates.
+            \item the number of rows(tuples) is called \brown{\textbf{cardinality}}.
+        \end{itemize}
+\end{enumerate}
+
+\blue{\textbf{\textit{Keys}}}:
+a key is a subset of the attributes that uniquely identifies a tuple in the relation.
+\begin{enumerate}
+    \item \textbf{\textit{Primary key}}: Is the candidate key that we choose to be "the key" for a given table.
+    \item \textbf{\textit{Unique key}}: Are the other candidate keys for a given table that are not selected to be the primary key.
+    \item \textbf{\textit{Candidate key}}: \tdinfo{the minimum key set.}{the minimal subset of attributes that uniquely identify a tuple in the table.}
+    \item \textbf{\textit{Super key}}: \tdinfo{other than candidate key, just like superset.}{A primary or unique key that is augmented by additional attributes.}
+\end{enumerate}
+\begin{note}
+    \underline{\textbf{Who determines the keys?}}
+    
+    Keys are determined by the \textbf{system designer} or \textbf{system analyst} depending on the real world scenario.
+\end{note}
+
+\blue{\textbf{\textit{Foreign keys}}}: An attribute $B_1$ in table $B$ that is the \textbf{key}(primary or unique key) $A_1$ of another table $A$.
+\begin{itemize}
+    \item Values of attribute $B_1$ is restricted to those in table $A_1$.
+    \item $B_1$ is termed \textbf{Foreign key} to $A$.
+\end{itemize}
+
+\subsubsection{Query languages for the relational model}
+There are two categories of query language for relational model:
+\begin{enumerate}
+    \item \textbf{Imperative(Procedural)}: 
+        \begin{itemize}
+            \item Specifies the detailed steps to be taken to evaluate a user's query.
+            \item e.g. Relational Algebra
+        \end{itemize}
+    \item \textbf{Declarative (Non-procedural)}:
+        \begin{itemize}
+            \item Specifies the query that the user needs answered and \textbf{not} how to answer it.
+            \item e.g. Relational Calculus(SQL, QBE).
+        \end{itemize}
+\end{enumerate}
+
+\subsection{The design process}
+When we design our database for a specific application, we need to follow a design process.
+\img{2.2-design_process.png}{Design Process}
+\begin{enumerate}
+    \item \textbf{Entity Relational model}(ER): is a general modeling tool. It helps us map a real-world scenario into an ER-model-based design.
+    
+    \hlred{The ER model is \textbf{not} necessarily tied to the actual relational DBMS. It is just a conceptual model.}
+    \item Translate ER model to your corresponding model that is adopted by your underlying DBMS.
+        \begin{itemize}
+            \item If use NoSQL Graph Data System $\Longrightarrow$ Graph Data Model
+            \item If use Relational DBMS $\Longrightarrow$ Relational Model
+        \end{itemize}
+\end{enumerate}
+\begin{info}
+    \textbf{Differences Among The Target Models}
+
+    The \textbf{relational model} is \hlyellow{\textbf{Schema-first}} since we define the schema before inserting data. $\Longrightarrow$ more efficient
+
+    The \textbf{NoSQL models} are \hlyellow{\textbf{Schema-last}} since we can modify the data structure freely. $\Longrightarrow$ more flexible
+\end{info}
+\subsubsection{The road map}
+\begin{enumerate}
+    \item Domain Experts
+
+    Tell their story - What they need
+    \item The System Analyst
+
+    Use some modeling language to map the domain expert needs to an intermediate model that the database developers can use to design their own system-dependent database application.
+    e.g. UML, ER Model
+
+    Tasks:
+    \begin{itemize}
+        \item Transferring the design document to model
+        \item Eliminating redundancy
+    \end{itemize}
+\end{enumerate}
+
+\subsection{ER Model}
+\begin{supp}
+    There are lots of images and graphs involved so please check the \href{https://purdue.brightspace.com/d2l/le/content/832018/viewContent/14053416/View}{lecture slides} for details.
+\end{supp}
+
+We use ER model for analyzing and modeling the real-world scenario.
+
+Elements in ER model:
+\begin{itemize}
+    \item \textbf{Entity}: real-world objects that is of interest in the scope of this scenario. \green{Represented by a rectangle.}
+    \item \textbf{Attributes}: belongs to entities. \green{Represented by a oval}
+    \item \hlyellow{$\star$} \textbf{Entity Set}: \tdinfo{It's just the entity but consider in the way of instances.}{A group or collection of entities that share the same attributes.} e.g. a set of instructors. Each entity set has one or more attributes that serves as the \brown{\textbf{key}}, which is \green{represented as a underline} inside the oval. 
+    \item \textbf{Relationship}: associate two or more entities. It \textbf{can} have its own attributes. \green{Represented by a diamond}.
+    \item \textbf{Relationship Set}: similar to Entity Set.
+    \begin{itemize}
+        \item An entity set can participate in multiple relationship sets.
+        \item An entity set can participate in the \textbf{same} relationship but as different \textbf{roles}. e.g. employees can manage or be managed by other employees.
+        \item \textbf{N-nary Relationship} refers to the number of entities involved in a relationship. (at least binary even for the self-pointing example because we count the number of arms, not entity sets.)
+    \end{itemize}
+    \item \textbf{Cardinality Constraints}: 
+    \img{2.3-cardinality.png}{Relationship Mapping}
+    \begin{itemize}
+        \item \tdinfo{can have 0 arm as well}{1-to-1: every entity can have \textbf{at most} one arm reaching out.}\green{Represented by arrow line on other side.}
+        \item 1-to-Many: at most one arm for left and no limit for the right.
+        \item Many-to-1: reversed case of 1-to-Many.
+        \item Many-to-Many: no limit at all.
+    \end{itemize}
+    \item \textbf{Total participation}: all instances in the entity set must have at least one arm. (Can combine with 1-to-1 to disallow no-connection item.) \green{Represented by bold line.}
+    \item \textbf{LowerLimit-UpperLimit}: A more complex way to manage cardinality constraint. Basically we write out explicitly how many arms are allowed to reach out from each entity in the relationship.
+    \img{2.3-cardlimit.png}{LowerLimit-UpperLimit Example}
+
+    \item \textbf{Weak Entity}: \tdinfo{like an external \textbf{attribute entity }that is attached to an \textbf{owner entity} by a relationship}{one that can be identified uniquely \textbf{only} by considering the primary key of another \textbf{owner entity}.} \hlyellow{Weak entity must have \textbf{total participation}!!!} \green{Represented by bold border.}
+    \img{2.3-weakentity.png}{Weak Entity Example}
+
+    \item \textbf{Specializations and Generalizations}: \tdinfo{like \textbf{parent class} and \textbf{child class} in OOP}{Identify a subset within an entity set that have some commonalities and that are distinguishable from other entities in the same entity set.}
+    \begin{itemize}
+        \item Overlap Constraint: can one entity belong to multiple specializations? (can instance $a$ belongs to many child classes?)
+        \item Covering Constraints: Can one entity in the superset but not in any of the subsets? (Is the parent class abstract?)
+    \end{itemize}
+
+    \item \textbf{Aggregation}: when we want to create a relationship that relates an entity to other relationships and entities. Treat a relationship set as an entity set and associate it with another relationship. The new aggregated entity set is not an actual table in database, but created in runtime(like a pseudo table).
+
+    \item \textbf{Advanced Attributes}: Attributes may also allow
+    \begin{itemize}
+        \item Composite: be a hierarchy of any depth and contains component attributes.
+        \item Multi-valued: a list of values.
+        \item Derived: computed from other attributes.
+    \end{itemize}
+\end{itemize}
+
+\end{document}

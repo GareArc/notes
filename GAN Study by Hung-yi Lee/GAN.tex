@@ -1,0 +1,186 @@
+\documentclass{../templates/ainote}
+
+%%%%Basic Info%%%%
+\author{\ccLogo \,\,Xiyuan Chen}
+\title{\textsc{Generative Adversarial Network (GAN)}}
+\date{2023}
+%%%%%%%%%%%%%%%%%%
+
+%%%%Document Beginner%%%%
+\begin{document}
+\maketitle
+\doclicenseThis
+\section*{Information}
+\begin{itemize}
+	\item Syllabus can be found through \href{http://speech.ee.ntu.edu.tw/~tlkagk/courses_MLDS18.html}{this link. }
+	\item This note is based on videos uploaded in 2018.
+    \item Videos are available on YouTube but I personally watched them on \href{https://www.bilibili.com/video/BV1Up411R7Lk}{BiliBili}.
+\end{itemize}
+\tableofcontents
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Main Body
+\section{Introduction}
+
+\subsection{What is GAN?}
+Generative Adversarial Network (GAN) is a Deep-Learning-based generative model. 
+
+\subsection{Idea Overview}
+GAN has two essential components: a \green{\textbf{Generator}} and a \green{\textbf{Discriminator}}.
+\begin{info}
+    A \green{Generator} is a NN or function that takes an arbitrary \textbf{vector} and output object(image, text, speech, etc.). We use it to produce the final object.
+    \img{ideaoverview1.png}{Basic idea for an image Generator}
+    The input vector usually comes from a known distribution, such as Gaussian Dist, so it is randomly sampled. The intuition is that the entries of the vector indicate different latent features of the object, so ideally, we can change one of the entries to control that specific feature.\\
+    简单来说就是生成器吃一个vector然后吐一个目标物品，比如一张图片。这个vector的每个维度可能对应目标物品的某个特征，比如眼睛的颜色。所以我们其实是学习一个function，把一个随机的向量当成生成参数然后投影到目标物品所在的分布中的一个点(高维的)。这个点就是我们生成的物品。
+\end{info}
+However, the Generator does not know how well the object it produces (We cannot just minimize the L2 distance between the produced images and real images). Therefore we need someone to tell our Generator what's wrong with the product.
+\begin{info}
+    A \green{Discriminator} is a NN or function that takes an \textbf{object}(maybe smt else we will see later) and output a scalar usually ranging from 0 to 1. This scalar represents how real the input object is compared to our database, which contains real data.
+    \img{ideaoverview2.png}{Basic idea for an image Discriminator}
+    A larger output value indicates that the input object is more likely real. We train the Discriminator so that it gives high scores to objects in the database and low scores to the ones produced by our Generator.\\
+    判别器用于打分，分越高说明越不像生成的，也就越好。在训练的时候我们知道输入是生成的还是真实的，所以判别器会相对应地调整学习，导致对输入的要求越来越高(对生成器越来越严格)。
+\end{info}
+The main idea/procedure of GAN is:
+\begin{enumerate}[i.]
+    \item Sample a vector from any distribution.
+    \item Generate an object from the Generator.
+    \item Rate the output by the Discriminator.
+    \item Discriminator learns parameters to give high scores to real images and low scores to fake images.
+    \item Generator learns parameters to produce objects that can receive high scores from the Discriminator.
+    \item Repeat the steps above until we are satisfied with the Generator's output.
+\end{enumerate}
+This workflow is very similar to biological evolution, where predator and prey make adjustments to cheat and identify each other, respectively.
+\img{ideaoverview3.png}{GAN Evolution}
+
+\section{Basic Theory}
+
+\subsection{Generation}
+Suppose we want to generate an image. An image is just a high-dimensional vector. Among all the possible locations(the entire vector space), our desired images(say anime girls) have a complicated but fixed distribution, denoted as $P_{data}(x)$ in Figure \ref{fig:basictheory1.png}.
+\img{basictheory1.png}{Vector Space for Image Generation}
+Only images within a certain area(the blue section) look like anime girls. Our goal is to learn such a distribution so that we can generate anime girl images by just sampling instances from this distribution.
+
+\subsection{Before GAN: Maximum Likelihood Estimation}
+MLE is a statistical method to find proper parameters that have the highest probability to produce the outcome of sampled data.
+\begin{itemize}
+    \item Given a data distribution $P_{data}(x)$ (We do not know its distribution, but we can sample data from it). 
+    \item We want to find parameter $\theta$ such that distribution $P_G(x;\theta)$ close to $P_{data}(x)$. E.g. $P_G(x;\theta)$ is a Gaussian Mixture Model, $\theta$ are means and variances of the Gaussians. 
+\end{itemize}
+How do we find it using MLE:
+\begin{enumerate}[1.]
+    \item Sample ${x^1, x^2, ..., x^m}$ from $P_{data}(x)$.
+    \item Compute $P_G(x^i;\theta)$ for a specific $\theta$.
+    \item Compute a likelihood value for this $\theta$: 
+        \begin{equation}
+        \label{equ:llhood}
+            L=\prod_{i=1}^{m}P_G(x^i;\theta)
+        \end{equation}
+        Multiplying all the probabilities is just one way to do maximization. We just want each probability to be as large as possible. So theoretically we can use average or smt else. 
+    \item Find $\theta^\ast$ that maximize $L$.
+\end{enumerate}
+\begin{supp}
+    \textbf{Relation between Maximum Likelihood Estimation and Minimum KL Divergence:}\\
+    \underline{Brief description of MKLD:} Kullback-Leibler divergence, or KL divergence, is a measure of the difference between two probability distributions. Minimizing KL divergence means finding the values of the distribution that minimize the difference between the two distributions. This is often used in machine learning to find the best parameters for a model by minimizing the difference between the predicted distribution and the true distribution of the data. \\
+    \proof  (MLE = MKLD) 
+    \begin{align*}
+    \label{equ:mle2mkld}
+        \theta^\ast&=\argmax_{\theta}\prod_{i=1}^{m}P_G(x^i;\theta) \\
+        &=\argmax_{\theta}log\prod_{i=1}^{m}P_G(x^i;\theta) \quad \text{\footnotesize{(Adding $log$ does not change the maximization problem.)}}\\
+        &=\argmax_{\theta}\prod_{i=1}^{m}logP_G(x^i;\theta) \\
+        &\approx \argmax_{\theta} \double{E}_{x\sim P_{data}}[logP_G(x;\theta)] \\
+        &=\argmax_{\theta} \int_{x} P_{data}(x)logP_G(x;\theta)dx - \int_{x} P_{data}(x)logP_{data}(x;\theta)dx \\
+        &\quad \text{\footnotesize{(The later part is just a constant so we are still good)}}\\
+        &=\argmin_{\theta} KL(P_{data} || P_G)
+    \end{align*}
+\end{supp}
+Limitation:
+\begin{note}
+    We do \textbf{NOT} know $P_G(x^i,\theta)$ at all. There is no way to compute the probability for different data $x^i$. So this method won't work in most real-world scenarios.
+\end{note}
+
+\subsection{Generator} \label{Generator}
+A \green{generator} G is a network. The network defines a probability distribution $P_G$. It maps one distribution to another arbitrary distribution.
+\img{basictheory2.png}{A Generator works as a distribution transformer.}
+We want the result distribution to be as close as possible to the real distribution. Therefore we need to find one that can minimize \textbf{some kind of divergence} \red{$Div(P_G,P_{data})$} between the two distributions. This divergence could be any measurement(different models have different ways of representing the divergence).
+\begin{note}
+    Up to this point, we still don't know $P_G$ and $P_{data}$, so we cannot compute the divergence directly. This is the job of a discriminator.
+\end{note}
+
+\subsection{Discriminator}
+Although we do not know the distributions of $P_G$ and $P_{data}$, we can sample from them.
+The job of a \green{discriminator} D is to measure the divergence between data sampled from $P_G$ and data sampled from $P_{data}$.\\
+\tdinfo{Maximize $D(x)$ from $P_{data}$. Minimize $D(x)$ from $P_{G}$}The \textbf{objective function} for D is:
+\begin{equation}
+\label{equ:objdis}
+    V(G,D)=\double{E}_{x\sim P_{data}}[logD(x)] + \double{E}_{x\sim P_{G}}[log(1-D(x))]\\
+\end{equation}
+\textbf{When training}, we want to find a $D^\ast$ such that it \red{maximize} $V(G,D)$.
+\begin{supp}
+    \textbf{What is \brown{$V(G,D)$} exactly?}
+    \spskip[1]
+    We will see that $V(G,D)$ is related to a famous divergence measurement called \textbf{\textit{Jensen-Shannon divergence}}(JS divergence). 
+    \spskip[1]
+    \proof
+    \begin{align*}
+    \label{equ:jsdivproof}
+        V(G,D)&=\double{E}_{x\sim P_{data}}[logD(x)] + \double{E}_{x\sim P_{G}}[log(1-D(x))]\\
+        &=\int_x P_{data}(x)logD(x)dx + \int_x P_{G}(x)log(1-D(x))dx\\
+        &=\int_x [P_{data}(x)logD(x) + P_{G}(x)log(1-D(x))]dx
+    \end{align*}
+    So given x, the optimal $D^\ast$ maximizing 
+    \begin{alignat*}{8}
+        &P_{data}(x)log&&D(x) + &&P_G(x)log(1-&&D(x)) \\
+        &a             &&D      &&b           &&D
+    \end{alignat*}
+    \proofforward \quad Find $D^\ast$ maximizing $f(D)=alog(D)+Blog(1-D)$.
+    \begin{alignat*}{5}
+        &&&\frac{df{D}}{dD}=a\times \frac{1}{D}+b\times \frac{1}{1-D}\times (-1)=0&
+        \spskip[0.5]
+        &\Longrightarrow&&D^\ast (x)=\frac{P_{data}(x)}{P_{data}(x)+P_G(x)}&
+        \spskip[0.5]
+        &=&&\double{E}_{x\sim P_{data}}\left[ log\frac{P_{data}(x)}{P_{data}(x)+P_G(x)}\right]+\double{E}_{x\sim P_{G}}\left[ log\frac{P_{data}(x)}{P_{data}(x)+P_G(x)}\right]&
+        \spskip[0.5]
+        &=&&\int_x P_{data}(x)log\frac{P_{data}(x)}{P_{data}(x)+P_G(x)}dx+\int_x P_{G}(x)log\frac{P_{data}(x)}{P_{data}(x)+P_G(x)}dx&
+        \spskip[0.5]
+        &=&&\int_x P_{data}(x)log\frac{\frac{1}{2}\cdot P_{data}(x)}{\frac{P_{data}(x)+P_G(x)}{2}}dx+\int_x P_{G}(x)log\frac{\frac{1}{2}\cdot P_{data}(x)}{\frac{P_{data}(x)+P_G(x)}{2}}dx&
+        \spskip[0.5]
+        &=&&-2log2+\int_x P_{data}(x)log\frac{P_{data}(x)}{\frac{P_{data}(x)+P_G(x)}{2}}dx+\int_x P_{G}(x)log\frac{P_{data}(x)}{\frac{P_{data}(x)+P_G(x)}{2}}dx &
+        \spskip[0.5]
+        &=&&-2log2+KL\left( P_{data}||\frac{P_{data}+P_G}{2}\right)+KL\left( P_{G}||\frac{P_{data}+P_G}{2}\right)&
+        \spskip[0.5]
+        &=&&-2log2+2JSD(P_{data}||P_G) \qquad \blacksquare&
+    \end{alignat*}
+\end{supp}
+In practice, we do \textbf{NOT} know $\double{E}$ for both $P_{data}$ and $P_G$. So we sample $\{x^1, x^2, \ldots, x^m\}$ from $P_{data}(x)$, and sample $\{\widetilde{x}^1, \widetilde{x}^2, \ldots, \widetilde{x}^m\}$. Then maximize
+\begin{equation}
+\label{equ:vsample}
+    \widetilde{V}=\frac{1}{m}\sum_{i=1}^m logD(x^i) + \frac{1}{m}\sum_{i=1}^m log(1-D(\widetilde{x}^i))
+\end{equation}
+\begin{note}
+    Equation \ref{equ:vsample} can be seen as the objective function of a binary classifier. It is \red{\textbf{equal}} to \textbf{minimize Cross-entropy}.
+    \img{basictheory3.png}{Relation with CE}
+\end{note}
+
+\subsection{Algorithm}
+So now we know $V(G,D)$ is a divergence measurement, we can replace \red{$Div(P_G, P_{data})$} in Section \ref{Generator} by $$\max_{D} V(G,D)$$ 
+and get
+\begin{equation}
+\label{equ:gast}
+    G^\ast = \argmin_G\max_{D} V(G,D)
+\end{equation}
+\begin{info}
+    \textbf{How to calculate {\normalfont Equation \ref{equ:gast}} in algorithm:}
+    \begin{itemize}
+        \item Initialize generator and discriminator
+        \item In each training iteration:
+            \begin{itemize}
+                \item[1.] Fix generator G, and update discriminator D
+                \item[2.] Fix discriminator D, and update generator G
+            \end{itemize}
+    \end{itemize}
+    \img{basictheory4.png}{Algorithm Breakdown}
+    
+\end{info}
+
+
+\end{document}

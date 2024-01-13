@@ -1,0 +1,220 @@
+\documentclass{ainote}
+
+%%%%Basic Info%%%%
+\author{\ccLogo \,\,Xiyuan Chen}
+\title{\textsc{CS401 Natural Language Computing}}
+\date{Winter, 2023}
+%%%%%%%%%%%%%%%%%%
+
+%%%%Document Beginner%%%%
+\begin{document}
+\maketitle
+\doclicenseThis
+\section*{Information}
+\begin{itemize}
+	\item Course website can be found through \href{https://www.cs.toronto.edu/~raeidsaqur/csc401/}{this link. }
+	\item Lectures are fully in-person. But recordings are available.
+\end{itemize}
+\tableofcontents
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Main Body
+\section{N-gram Model}
+
+\subsection{Counting}
+What are we counting in statistical language models?
+\begin{info}
+\textbf{\underline{Terminologies:}}
+\spskip[1]
+\green{\textbf{Token(s)}}: \textbf{instances} of words or punctuation. 每个单词就是一个token
+\spskip
+\green{\textbf{Type(s)}}: \textbf{kinds} of words or punctuation. 每种单词就是一个type，重复出现的单词只算一次
+\spskip
+\green{\textbf{Corpus}(pl. corpora)}: A body of language data of a particular sort. 语料库，所有text的集合
+\end{info}
+We can use the number of tokens or types to statistically model a corpus by computing a \textbf{probability for a sequence of tokens}.
+\spskip
+\textit{\underline{Attempt 1}}: In a corpus the probability of sequence $P(the\ old\ car) = P(the)P(old)P(car)$. \\
+\red{Issues: We ignore the past entirely, the probability of a sequence is the product of \textbf{prior} probabilities.}
+\begin{align*}
+    P(the\ old\ car)&=P(the)P(old)P(car)\\
+    &=P(the)P(car)P(old)\\
+    &=P(the\ car\ old)\quad\red{×}
+\end{align*}
+
+\textit{\underline{Attempt 2}}: We consider sequences with full dependencies $P(the\ old\ car)=P(the)P(old|the)P(car|the\ old)$.\\
+\red{Issue: If we consider \textbf{all} of the past, we will never gather enough data in order to be useful in practice.}\\
+For example, the sequence '\textit{the old car}' may never appear in our corpora. 
+\begin{align*}
+    &P(car|the\ old)=0\\
+    \Longrightarrow &P(the\ old\ car)=0\quad\red{×}
+\end{align*}
+When the sequence gets longer, the conditional probability is very likely to be 0.
+
+\subsection{Definition}
+To address the issues mentioned above, we can consider a sequence with fewer dependencies: \textbf{consider only $n$ words(tokens) at a time.}
+\begin{info}
+    {\large\green{\textbf{N-gram(s)}}}: token sequences of length $N$.
+\end{info}
+For example, the fragment '\textit{\underline{in this sentence is}}' contains the following \textbf{2-grams}(i.e. bigrams):\\
+\textit{(in this), (this sentence), (sentence is)}
+
+\subsubsection{Simple Word prediction}
+Given the probabilities of N-grams, we can compute the \textbf{conditional probabilities} of possible subsequent words.
+{\small E.g.\begin{align*}
+    &P(is\ \text{\blue{\textit{the}}}) > P(is\ \text{\green{\textit{a}}})\\
+    \Longrightarrow &P(\text{\blue{\textit{the}}}|is) > P(\text{\green{\textit{a}}}|is)
+\end{align*}
+Then we would predict '\textit{the last word in this sentence is \textbf{\blue{the}}}'.
+}
+\spskip[1]
+For convenience, we define 
+\begin{itemize}
+    \item Term count(\green{\textit{\textbf{Count}}}) of term $w$ in corpus $C$ is the number of tokens of term $w$ in $C$. Denoted as $Count(w, C)$.
+    \item Relative frequency(\green{\textit{\textbf{$F_C$}}}) is defined relative to the \textbf{total number of tokens} in the corpus, $||C||$. Denoted as $F_C(w)=\frac{Count(w,C)}{||C||}$.
+\end{itemize}
+\begin{supp}
+    In theory, $\displaystyle\lim_{||C||\to \infty}F_C(w)=P(w)$
+\end{supp}
+Now we can \textbf{approximate} conditional probabilities by counting occurrences in large corpora of data:
+\begin{align*}
+    P(food|I\ like\ Chinese)&=\frac{P(I\ like\ Chinese\ food)}{P(I\ like\ Chinese)}\\
+    &\approx \frac{Count(I\ like\ Chinese\ food)}{Count(I\ like\ Chinese)}
+\end{align*}
+
+\subsubsection{Markov Assumption}
+\begin{info}
+    \textbf{\underline{Markov assumption:}}
+    \spskip
+    Assume each observation only depends on \textbf{a short linear history} of length $L$. Defined as:
+    \begin{align*}
+        P(w_n|w_{1:(n-1)})\approx P(w_n|w_{(n-L+1):(n-1)})
+    \end{align*}
+\end{info}
+For example, in \textbf{bigram} version:
+\begin{align*}
+    P(w_n|w_{1:(n-1)})\approx P(w_n|w_{n-1})
+\end{align*}
+(把整个sequence的概率简化成最后的$L$个tokens的概率)
+
+\subsubsection{Probability of a Sentence}
+\begin{info}
+    \textbf{\underline{Probability of a sentence:}}
+    \spskip
+    The probability of a sentence $s$ is defined as the \textbf{product} of the \textbf{conditional} probabilities of its N-grams:
+    \begin{align*}
+        P(s)=\prod_{g\in S} P(g) \quad\text{where $g$ is the \textbf{conditional probability} of the N-grams of sentence $s$.}
+    \end{align*}
+\end{info}
+For example, in trigram:
+\begin{equation*}
+    P(s)=\prod^t_{i=2} P(w_i|w_{i-2}\ w_{i-1})
+\end{equation*}
+
+\subsubsection{Performance}
+Despite its simplicity, N-gram probabilities can crudely capture \textbf{interesting facts about language and the world}. It can learn:
+\begin{itemize}
+    \item World Knowledge
+    \item Syntax
+    \item Discourse(sentence completion)
+\end{itemize}
+
+\subsection{Evaluation}
+How do we compare two language models?
+\subsubsection{Shannon's Method}
+\begin{info}
+    \textbf{\underline{Shannon's Method:}}
+    \begin{itemize}
+        \item We can use a language model to \textbf{generate} random sequences.
+        \item We want to see sequences that are \textbf{similar} to those we used for \textbf{training}.
+    \end{itemize}
+\end{info}
+\begin{note}
+    \textbf{\underline{Shannon's Method with N-grams:}}
+    \spskip
+    As $N$ \textbf{increases}, the generated text is more \textbf{similar} to the corpus.\\
+    $N↑ \Longrightarrow P↓ \Longrightarrow \text{more similar to the dataset}$
+    \spskip
+    For increasing context, there are fewer possible next words, given the training data.\\
+    ($N$变大的时候得到的匹配句子变少，使得生成的句子和这些非常相似。)
+\end{note}
+
+\subsubsection{Extrinsic Evaluation}
+\underline{Extrinsic evaluation:} in terms of some external measure.\\
+The \textbf{utility} of a language model is often determined in \textit{situ}(i.e. in \textbf{practice}).
+\spskip
+{\small For example, we can
+\begin{enumerate}
+    \item Alternatively embed LMs $A$ and $B$ into a \textbf{speech recognizer}.
+    \item Run speech recognition using each model.
+    \item Compare recognition rates between the system that uses LM $A$ and LM $B$.
+\end{enumerate}
+}
+\subsubsection{Intrinsic Evaluation}
+\underline{Intrinsic evaluation:} in terms of properties of the LM itself.
+
+\subsubsubsection{Probability of a Corpus}
+To measure the intrinsic value of a language model, we first need to estimate the \textbf{probability of a corpus}, $P(C)$.
+\begin{info}
+    \textbf{\underline{Probability of a Corpus:}}
+    \spskip
+    For a corpus of sentences, $C$, we make the assumption that the sentences are \textbf{conditionally independent}:
+    \begin{equation*}
+        P(C)=\prod_i P(s_i)
+    \end{equation*}    
+\end{info}
+\begin{note}
+    A language model is better if its corpus probability is higher. (i.e. $P_1(C) > P_2(C) \Longrightarrow P_1\ \text{is better.}$)
+\end{note}
+
+\subsubsubsection{Maximum likelihood estimate}
+\begin{info}
+    \textbf{\underline{Maximum likelihood estimate(MLE)}} of parameters $\theta$ in a model $M$, given training data $T$ is:
+    \img{mle.png}{MLE for N-grams}
+\end{info}
+
+\subsubsubsection{Perplexity}
+\begin{info}
+    \textbf{\underline{Perplexity}} on corpus $C$, denoted as $PP(C)$:
+    \begin{align*}
+        PP(C)&=2^{-\left(\frac{\log_2 P(C)}{||C||}\right)}\\
+        &=P(C)^{-1/||C||}
+    \end{align*}
+\end{info}
+Perplexity和entropy有相似之处，系统越混乱(uniform dist)值越高。
+\begin{note}
+    \begin{itemize}
+        \item \textbf{minimizing} perplexity $\equiv$ \textbf{maximizing} probability of corpus.
+        \item \textbf{lower} perplexity $\longrightarrow$ \textbf{better} model.
+    \end{itemize}
+\end{note}
+
+\subsubsection{ZIPF and Natural Distribution in Language}
+Problem with N-gram models:
+\begin{enumerate}
+    \item \textbf{New words} appear often as we read new data. (e.g. Covid-19)
+    \item \tdinfo{Too many n-grams in the world!}\textbf{New n-grams} occur even more often.
+\end{enumerate}
+
+\subsubsubsection{Sparseness}
+\img{sparseness.png}{Sparseness}
+\underline{Why does sparseness happen?}
+\spskip
+The bigram table appears to be filled in \textbf{non-uniformly}. Some words are more \textbf{popular} and will occur in many bigrams just from random chance.
+
+\subsubsubsection{Zipf's Law}
+\begin{info}
+    \textbf{\underline{Zipf's Law}}:
+    \spskip
+    Speaker minimizes effort by using a \textbf{small} vocabulary of \textbf{common} words.\\
+    Hearer minimizes effort by having a large vocabulary of less ambiguous words.
+    \begin{equation*}
+        f \propto \frac{1}{r}\quad \text{i.e. for some $k$}\ f\cdot = k
+    \end{equation*}
+    Frequency and rank are \textbf{inversely} proportional.
+\end{info}
+
+
+
+\end{document}

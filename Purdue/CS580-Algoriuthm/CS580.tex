@@ -1,0 +1,77 @@
+% \include{../../ainote}
+
+\documentclass{ainote}
+
+%%%%Basic Info%%%%
+\author{\ccLogo \,\,Xiyuan Chen}
+\title{\textsc{CS58000 Algorithm Design, Analysis, And Implementation}}
+\date{Fall Term, 2023}
+%%%%%%%%%%%%%%%%%%
+
+%%%%Document Beginner%%%%
+\begin{document}
+
+\maketitle
+\doclicenseThis
+\section*{Information}
+\begin{itemize}
+    \item Instructor: Mikhail J Atallah, Tamal Krishna Dey
+    \item Course website is  \href{https://www.cs.purdue.edu/homes/tamaldey/course/580/}{here}.
+    \item No group project.
+\end{itemize}
+% \tableofcontents
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Main Body
+\section{Background, sorting and searching}
+\subsection{Big-O \& Big-Omega }
+\subsubsection{Running time analysis}
+\begin{itemize}
+    \item \blue{\textbf{Worst case running time.}} Obtain bound on \red{largest possible} running time of the algorithm on input of a given size $N$.
+    \item \blue{\textbf{Average case running time.}} Obtain bound on running time of algorithm on \red{random} input as a function of input size $N$.
+        \begin{itemize}
+            \item Hard to accurately model real instances.
+            \item Algorithm tuned for a certain distribution may perform poorly on other inputs.
+        \end{itemize}
+\end{itemize}
+
+\subsubsection{Asymptotic order of growth}
+\begin{itemize}
+    \item \blue{\textbf{Upper bounds.}} $T(n)$ is $\mc{O}(f(n))$ if there exist constant $c>0$ and $n_0 \ge 0$ such that for all $n\ge n_0$ we have $T(n)\le c\cdot f(n)$.
+    \item \blue{\textbf{Lower bounds.}} $T(n)$ is $\Omega(f(n))$ if there exist constant $c>0$ and $n_0 \ge 0$ such that for all $n\ge n_0$ we have $T(n) \ge c\cdot f(n)$.
+    \item \blue{\textbf{Tight bounds.}} $T(n)$ is $\mc{\Theta}(f(n))$ if there exist constant $c_1>0$, $c_2>0$ and $n_0 \ge 0$ such that for all $n\ge n_0$ we have $c_1\cdot f(n)\le T(n)\le c_2\cdot f(n)$.
+\end{itemize}
+\begin{info}
+    We use "$\boldsymbol{\in}$" symbol to state the relationship between running time and upper bound. E.g. $T(n)\in \mc{O}(f(n))$.
+\end{info}
+
+\subsection{Quick Sort}
+\blue{\textbf{Quick Sort}} is a divide-and-conquer sorting algorithm that have average time complexity of $\mc{O}(nlogn)$ and have decent space complexity since it only involves swapping.
+
+\subsubsection{Idea}
+Pick a pivot element in the target list. Divide the whole list into \textbf{two} parts: \tdinfo{this is done by \textbf{Partition}, see below.}{one with all elements \textbf{smaller} than the pivot and the other one with all elements \textbf{greater} than the pivot(where to put the pivot is up to the actual implementation).} Do this recursively on both lists and we result in getting a sorted list.
+
+\subsubsection{Partition}
+Partition(see more on the \href{https://www.cs.purdue.edu/homes/tamaldey/course/580/quicksort.pdf}{slide}) is the core component of Quick Sort algorithm. It processes a list such that elements that are smaller than the pivot get gathered together and the same for elements larger than the pivot. There are multiple ways to do that, here we introduce one approach:
+
+Assume we have a list $A$ with starting index $p$ and ending index $q$.
+\begin{enumerate}
+    \item Initialize two pointers $i$ and $j$. Let $i=p-1$ and $j=q+1$.
+    \item Pick a pivot called $P$(leftmost, rightmost or just random).
+    \item Keep decrementing $j$ until we find a $A[j]$ such that $A[j]\le P$, i.e. from right to left, find one element that is smaller or equal to the pivot.
+    \item Keep incrementing $i$ until we find a $A[i]$ such that $A[i]\le P$, i.e. from left to right, find one element that is greater or equal to the pivot.
+    \item If $i<j$, swap $A[i]$ and $A[j]$, i.e. if $i$ and $j$ haven't meet each other, swap the elements they are pointed to. Then go back to \textbf{step 3}.
+    
+    Otherwise, declare $j$ as the dividing boundary(i.e. elements before index $j+1$ are all smaller than or equal to $P$ and naturally all elements greater than or equal to $P$ are gathered after index $j$.)
+    \item Done. Now we have two partitions which add up to the whole list such that one contains all smaller elements and the other contains all larger elements. Notice that these parts themselves may not be sorted so we need to do recursive calls until there is only one, two or three elements in the input list, then it is guaranteed to be sorted after partition.
+\end{enumerate}
+\img{1.2-partition.jpg}{Partition example walk-through.}
+\begin{info}
+    The intuition is that we want all small numbers grouped on the left and all large numbers grouped on the right. So whenever we have a small number relatively on the right, we swap it  with a large number relatively on the left. Notice that when the two pointers meet with each other, by definition, it must be true that numbers after index $j$ are all greater than the pivot and numbers before index $i$ are all smaller than the pivot.
+\end{info}
+
+
+\subsection{Heap Sort}
+
+\end{document}
