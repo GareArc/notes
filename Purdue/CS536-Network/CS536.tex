@@ -105,6 +105,10 @@ Capability of network and end systems:
         \begin{itemize}
             \item stationary
             \item mobile
+                \begin{itemize}
+                    \item Doppler effect: the frequency of the wave changes when the source or the receiver is moving.
+                    \item Low frequency loses strength but passes through walls. (2.4GHz, 5GHz)
+                \end{itemize}
         \end{itemize}
 \end{enumerate}
 
@@ -126,6 +130,8 @@ Capability of network and end systems:
             \item link is a shared resource.
             \item myriad of LAN technologies and protocols.
         \end{itemize}
+    \item denail of service (DoS) attack: receivers need to process a minimum amount of data and analyze metadata to determine if a message is for them. When splashing a lot of messages, the receiver will be overwhelmed.
+    \item Singals may add up to create \textbf{superposition}, which makes receivers hard to decode the message.
 \end{itemize}  
 
 \subsubsection{Internetwork}
@@ -135,11 +141,65 @@ Capability of network and end systems:
     \item everything is the composition of point-to-point links and multi-access links.
     \item additional complications:
         \begin{itemize}
-            \item new names beyond LAN addresses: in principle, LAN addresses are unique and suffice.In practice, new names (i.e., network addresses) bring benefits despite overhead. 
+            \item new names beyond LAN addresses: in principle, LAN addresses are unique and suffice.In practice, new names (i.e., network addresses) bring benefits despite overhead. \underline{IPv4: 32 bits, IPv6: 128 bits.}
             \item protocol translation: LANs speak different languages (e.g., Ethernet and
-            WLAN)
+            WLAN). We call hosts that are able to do more than one network connection and IP address \textbf{multi-homed}.
             \item location management: mobility. e.g., handoff of mobile host among multiple networks.
         \end{itemize}
 \end{itemize}
+
+\subsection{LAN vs WAN}
+
+\begin{itemize}[leftmargin=*]
+    \item LAN (Local Area Network): point-to-point links and multi-access links.
+    \item WAN Wide Area Network: internetwork. \textbf{WAN is a network of LANs.}
+\end{itemize}
+
+Setellite, GPS, Starlink, printer to PC are all point-to-point links, thus they are all LANs. Communication between east coast and Europe is through cables under the ocean, thus it is still a LAN. (if we ignore repeaters during the transmission here.) 
+
+When we talk about conenctions within Purdue campus which involves hundreds of routers, switches and devices, it is WAN.
+
+Takeaway: LAN and WAN are not about the size of the network, but the type of the network. If the connection is a large network of LANs, it is WAN. And when connecting 2 LANs, we need some intermediary who speaks both languages of the 2 lines being connected.
+
+\subsection{Port}
+When we commnunicate between devices, each device has an OS. When we try to send data, we are not sending it to OS (in most cases, except pinging), but to a \textbf{process} (or \textbf{thread}). How do we know which process to send to? 
+
+Attempt: use process ID. But process ID is \textbf{not predictable}. We cannot assign PID manually to a new process.
+
+Solution: use (IP address, \textbf{port number}) pair. Port is a number that is predictable. We can assign a port number to a process. When we send data, we send it to a port number. The OS will know which process to send to.
+
+\subsection{Network Design \& Performance}
+
+\subsubsection{Emphasis of lightweight network core}
+The priciple nowadays is to \textbf{keep the hardware simple} and \textbf{put the complexity in software}. We push heavyweight stuff toward the edge.
+
+\begin{supp}
+    ATM: Asynchronous Transfer Mode. It is a circuit-switched network. It is a smart router designed in the 80s. It handles some of the jobs for packets. But IP ended up winning the competition. 
+\end{supp}
+
+The network is kept very small, we call it an \textbf{end-to-end paradigm}.
+\imgc{hourglass_design.png}{Hour-glass Design of Network}{0.3}
+
+
+\subsubsection{Performace yardsticks}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Bandwidth} in bps (bits per second). We \textbf{ignore} protocol overhead in this metric.
+    \item \textbf{Throughputs} in bps. Protocol overhead is included. In practice, app and user space OS overhead causes further slow-down.
+    \item \textbf{Latency} in msec (milliseconds).
+        \begin{itemize}
+            \item signal speed limit: speed of light.
+            \item processing and buffering delay: time to process a packet, time to wait in a queue.
+        \end{itemize}
+    \item \textbf{Jitter} in msec: variation in latency. \red{Average delay small but max delay large.} Jitter is bad for real-time applications.
+\end{itemize}
+
+A single bit cannot go faster (bound by reality world and physics). The only way we can increase the speed is to \textbf{increase the number of bits} we send at a time (increase the \textbf{bandwidth}. i.e., bits packed into 1 second). 
+
+Internet traffic is \textbf{bursty}. e.g., real-time video streaming.
+\imgc{bursty_ill.png}{Bursty Internet Traffic Diagram}{0.4}
+
+\newpage
+
+\section{Fundamentals of Data Transmission}
 
 \end{document}
