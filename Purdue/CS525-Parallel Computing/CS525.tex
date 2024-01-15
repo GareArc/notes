@@ -28,7 +28,7 @@
 \section{Parallel Programming Platforms}
 There is no slides but I found a past course slide for reference. \href{https://www.cs.purdue.edu/homes/ayg/CS525_SPR17/chap2_slides.pdf}{here}.
 
-\subsection{Processors}
+\subsection{Processor}
 Jobs of a processor: 1. fetch instructions. 2. decode instructions. 3. execute instructions. 4. store results.
 
 Most of the time, the instructions are of few types: e.g. MOVE, ADD, LD, FSD
@@ -39,21 +39,30 @@ Basic idea: an instruction can be executed while the next one is being decoded a
 
 Limitations: 
 \begin{itemize}
-    \item \blue{Bottleneck}: the slowest stage determines the speed of the pipeline. We solve by 1. \textbf{decpmosing} the slowest stage into multiple stages. 2. Use multiple pipelines (\textbf{Superscalar Excution}).
-    \item \blue{Conditional jumps}: the pipeline must be flushed when a branch is encountered. We solve by \textbf{branch prediction}.
+    \item \textbf{Bottleneck}: the slowest stage determines the speed of the pipeline. We solve by 1. \blue{decpmosing} the slowest stage into multiple stages. 2. Use multiple pipelines (\blue{Superscalar Excution}, see below).
+    \item \textbf{Conditional jumps}: the pipeline must be flushed when a branch is encountered. We solve by \blue{branch prediction}.
 \end{itemize}
 
 \paragraph{Superscalar Execution}\mbox{}
+Having multiple excution units (pipelines) to execute multiple instructions at the same time.
+\imgc{Processor-with-two-execution-units1.png}{Superscalar Execution Example with 2 Units}{0.6}
 
 How to schedule instructions to multiple pipelines? We consider:
 \begin{itemize}
-    \item Data Dependencies: the result of one operation is an input to the next.
-    \item Read Dependencies: the result of one operation is read by the next.
-    \item Control Dependencies: the next operation depends on the result of a conditional branch.
-    \item Resource Dependencies: the next operation requires the same resource as the current one.
+    \item \textbf{Data Dependencies}: the result of one operation is an input to the next.
+    \item \textbf{Read Dependencies}: the result of one operation is read by the next.
+    \item \textbf{Control Dependencies}: the next operation depends on the result of a conditional branch.
+    \item \textbf{Resource Dependencies}: the next operation requires the same resource as the current one.
 \end{itemize}
 
 We also \textbf{unroll the loops} to expose more parallelism.
+
+\paragraph{Difference between pipelining and superscalar}\mbox{}
+\begin{itemize}
+    \item pipelining focuses on breaking down an instruction into sequential stages, whereas superscalar emphasizes on executing multiple instructions at the same time.
+    \item pipelining typically has one execution unit, whereas superscalar has multiple execution units.
+    \item superscalar is more parallel than pipelining.
+\end{itemize}
 
 
 \end{document}
