@@ -202,4 +202,54 @@ Internet traffic is \textbf{bursty}. e.g., real-time video streaming.
 
 \section{Fundamentals of Data Transmission}
 
+\subsection{How are bits sent using physical signals?}
+Lecture notes of this section is \href{https://www.cs.purdue.edu/homes/park/cs536/data_trans-536-24s-a.pdf}{here}.
+
+E.g. A and B are connected by point-to-point link. A wants to send bits 011001 to B.
+
+We use eletromagnetic(EM) waves beacuse it is fast.
+
+Sine curves with different strengths are used to represent bits. The strength of the EM wave is called \textbf{amplitude}. The number of cycles per second is called \textbf{frequency}. \textbf{Wavelength} is the distance between 2 peaks of the wave. ($\frac{1}{f} \times c = L$, where $c$ is the speed of light.)
+\imgc{em_signal.png}{EM Signal}{0.5}
+
+\textbf{Amplitude Modulation}: a process by which the wave signal is transmitted by modulating the amplitude of the signal. We use \blue{high amplitude to represent 1} and \blue{low amplitude to represent 0}. (low amplitude is \textbf{not} 0 amplitude, it is just lower than high amplitude.) 
+
+\imgc{amplitude_modulation.png}{Amplitude Modulation}{0.5}
+
+\begin{supp}
+    In AM Radio, the signal is not in bits, but an analog signal. The signal is modulated by the amplitude of the EM wave. The receiver will demodulate the signal to get the original signal.
+\end{supp}
+
+\subsection{Frequncy and Bandwidth}
+We measure the frequency in \textbf{Hertz}. 1Hz = 1 cycle per second. 1KHz = 1000Hz. 1MHz = 1000KHz. 1GHz = 1000MHz. This can be easily converted to the bandwidth (or bps).
+
+If we have a signal with frequancy 1Hz then the bandwidth is 1bps. If we have a signal with frequancy 1KHz then the bandwidth is 1000bps. If we have a signal with frequancy 1MHz then the bandwidth is 1Mbps. If we have a signal with frequancy 1GHz then the bandwidth is 1Gbps.
+
+So can we just increase the frequency to increase the bandwidth? No!
+\begin{enumerate}
+    \item increasing frequancy requires increase clock rate and processing speed, which is costy.
+    \item wireless propagation. To reach above 10 GHz requires \textbf{line of sight} (LOS). The signal cannot go through walls.
+    \item multi-user communication. The real world is not all point-to-point links. This is the key reason why we cannot just increase the frequency to increase the bandwidth.
+\end{enumerate}
+
+\subsection{Optical Fiber}
+When the light signal hits the surface of glass \red{within the \textbf{critcal angle}}, it will be \textbf{reflected completely} back into the glass. 
+
+If the angle is not right, some light escapes and we loss some strength of the signal. The receiver will see a distorted signal. This is called \textbf{modal dispersion}.
+
+\subsubsection{Compare to copper wire}
+\begin{enumerate}[leftmargin=*]
+    \item copper wires are easily influenced by the environment. e.g., the signal will be distorted by the magnetic field while optical fiber is not.
+    \item When two signals meet in copper wire, they will interfere with each other. But in optical fiber, they only add up (superposition). Of course the receivers need to be able to decode that merged signal.
+\end{enumerate}
+
+\subsection{Sending more bits than the frequency bandwidth}
+Question: How can we send more bits than the bandwidth allowed by a fixed frequancy? e.g., we have a 1Hz signal, but we want to send 2 bits per second.
+
+Solution: Make the amplitude to be 4 levels instead of 2 levels thus we can send 2 bits at once per second.
+
+Similarly, we can use 8 levels to represent 3 bits, 16 levels to represent 4 bits, etc.
+
+\underline{Notice}: when we increase the number of levels, the amplitude levels will have \textbf{less noise tolerance}. 
+
 \end{document}
