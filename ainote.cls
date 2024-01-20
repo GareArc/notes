@@ -15,19 +15,19 @@
 \renewcommand\theparagraph{\thesubsubsubsection.\arabic{paragraph}} % optional; useful if paragraphs are to be numbered
 
 \titleformat{\subsubsubsection}
-  {\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
+{\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
 \titlespacing*{\subsubsubsection}
 {0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 
 \makeatletter
 \renewcommand\paragraph{\@startsection{paragraph}{5}{\z@}%
-  {3.25ex \@plus1ex \@minus.2ex}%
-  {-1em}%
-  {\normalfont\normalsize\bfseries}}
+    {3.25ex \@plus1ex \@minus.2ex}%
+    {-1em}%
+    {\normalfont\normalsize\bfseries}}
 \renewcommand\subparagraph{\@startsection{subparagraph}{6}{\parindent}%
-  {3.25ex \@plus1ex \@minus .2ex}%
-  {-1em}%
-  {\normalfont\normalsize\bfseries}}
+    {3.25ex \@plus1ex \@minus .2ex}%
+    {-1em}%
+    {\normalfont\normalsize\bfseries}}
 \def\toclevel@subsubsubsection{4}
 \def\toclevel@paragraph{5}
 \def\toclevel@paragraph{6}
@@ -58,8 +58,8 @@
 ]{hyperref}
 \RequirePackage{ccicons}
 \RequirePackage[ % License 
-    type={CC}, 
-    modifier={by-nc-sa}, 
+    type={CC},
+    modifier={by-nc-sa},
     version={4.0},
 ]{doclicense}
 
@@ -78,32 +78,32 @@
 
 % 注意行末需要把空格注释掉，不然画出来的方框会有空白竖线
 \newenvironment{formal}[2]{%
-\def\FrameCommand{%
-\hspace{1pt}%
-{\color{#1}\vrule width 2pt}%
-{\color{#2}\vrule width 4pt}%
-\colorbox{#2}%
-}%
-\MakeFramed{\advance\hsize-\width\FrameRestore}%
-\noindent\hspace{-4.55pt}% disable indenting first paragraph
-\begin{adjustwidth}{}{7pt}%
-\vspace{2pt}\vspace{2pt}%
-}
-{%
-\vspace{2pt}\end{adjustwidth}\endMakeFramed%
+    \def\FrameCommand{%
+        \hspace{1pt}%
+        {\color{#1}\vrule width 2pt}%
+        {\color{#2}\vrule width 4pt}%
+        \colorbox{#2}%
+    }%
+    \MakeFramed{\advance\hsize-\width\FrameRestore}%
+    \noindent\hspace{-4.55pt}% disable indenting first paragraph
+    \begin{adjustwidth}{}{7pt}%
+        \vspace{2pt}\vspace{2pt}%
+        }
+        {%
+        \vspace{2pt}\end{adjustwidth}\endMakeFramed%
 }
 
 \newenvironment{info}
-    {\begin{formal}{Green}{greenshade}}    
-    {\end{formal}}
+{\begin{formal}{Green}{greenshade}}
+        {\end{formal}}
 
 \newenvironment{note}
-    {\begin{formal}{LightCoral}{redshade}}
-    {\end{formal}}
+{\begin{formal}{LightCoral}{redshade}}
+        {\end{formal}}
 
 \newenvironment{supp}
-    {\begin{formal}{BurlyWood}{brownshade}}
-    {\end{formal}}
+{\begin{formal}{BurlyWood}{brownshade}}
+        {\end{formal}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%% highlights %%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,17 +140,17 @@
 % Figure
 \newcommand{\img}[2]{%
     \begin{figure}[H]
-    	\center\includegraphics[width=0.6\textwidth]{imgs/#1}
-    	\caption{#2}
-    	\label{fig:#1}
+        \center\includegraphics[width=0.6\textwidth]{imgs/#1}
+        \caption{#2}
+        \label{fig:#1}
     \end{figure}
 }%
 % Figure
 \newcommand{\imgc}[3]{%
     \begin{figure}[H]
-    	\center\includegraphics[width=#3\textwidth]{imgs/#1}
-    	\caption{#2}
-    	\label{fig:#1}
+        \center\includegraphics[width=#3\textwidth]{imgs/#1}
+        \caption{#2}
+        \label{fig:#1}
     \end{figure}
 }%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -261,5 +261,16 @@
 \newcommand{\inductive}{\textsc{\underline{Inductive Step:}} }
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 \newcommand{\independent}{\perp \!\!\! \perp}
+
+\newcommand{\bmat}[1]{
+    \begin{bmatrix}
+        #1
+    \end{bmatrix}
+}
+\newcommand{\inlinemat}[1]{
+    \big(\begin{smallmatrix}
+        #1
+    \end{smallmatrix}\big)
+}
 
 % -------------------------END-------------------------------------

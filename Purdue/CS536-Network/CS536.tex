@@ -244,12 +244,72 @@ If the angle is not right, some light escapes and we loss some strength of the s
 \end{enumerate}
 
 \subsection{Sending more bits than the frequency bandwidth}
-Question: How can we send more bits than the bandwidth allowed by a fixed frequancy? e.g., we have a 1Hz signal, but we want to send 2 bits per second.
+Question: How can we send more bits than the bandwidth given a fixed frequancy? e.g., we have a 1Hz signal, but we want to send 2 bits per second.
 
 Solution: Make the amplitude to be 4 levels instead of 2 levels thus we can send 2 bits at once per second.
 
 Similarly, we can use 8 levels to represent 3 bits, 16 levels to represent 4 bits, etc.
 
 \underline{Notice}: when we increase the number of levels, the amplitude levels will have \textbf{less noise tolerance}. 
+
+\subsection{Multi-user communication}
+\paragraph{Interference}\mbox\\
+\imgc{multi_user_interference.png}{Multi-user Interference}{0.5}
+Both cell towers are sending signals. Each receiver will receive the signal from both towers, particularly, the sum of two signals (superposition).
+
+Problems:
+\begin{itemize}
+    \item distorted signal
+    \item interference
+    \item hard to figure out what bits were sent
+\end{itemize}
+
+\paragraph{Multiplexing}\mbox\\
+\imgc{multi_user_multiplexing.png}{Multi-user Multiplexing}{0.5}
+Point-to-point links between routers/switches (A and B) which forward multiple traffic streams.  
+
+\subsubsection{Time-division multiplexing accessing (TDMA)}
+Bit streams sharing a same link. Subdivide time into equal sized slots and assign each slot to some users.
+\imgc{tdm.png}{Time-division Multiplexing}{0.5}
+Each user can get multiple slots and each slot can be assigned to multiple users. (Round robin)
+
+In the multiplexing example, router A acts as a multiplexer (MUX) and router B acts as a demultiplexer (DEMUX).
+
+In real world, TDMA is in \textbf{frames} to support multiple(specifically, 24 in the example) simulatinous users (called "\textbf{channels}").
+\imgc{tdm_frame_example.png}{T1 carrier (1.544 Mbps)}{0.6}
+\begin{itemize}[leftmargin=*]
+    \item 8-bit block: Each user sends 8 consecutive bits.
+    \item In total $24\times 8=192$ bits of payload. Plus 1 control bit, we have 193 bits per frame.
+    \item 8000 frames are squeezed into 1 sec time intervel. So we have $193\times 8000=1.544$ Mbps.
+\end{itemize}
+
+\begin{note}
+    Problem: OK if frequency is managed by a central authorty. Bad when frequency is shared by multiple providers $\rightarrow$ interference.
+\end{note}
+
+
+\subsubsection{Code-division multiplexing accessing (CDMA)}
+Sending multiple bit streams using coding method. Each user is assigned a unique vector. 
+\begin{enumerate}[leftmargin=*]
+    \item Cell tower: 
+        \begin{enumerate}
+            \item Create $n$ \textbf{orthogonal} vectors (codes). Each user is assigned a unique vector.
+            \item Map bits to vectors. (See below)
+            \item Broadcast the synthesized vector.
+        \end{enumerate}
+    \item Receiver:
+        \begin{enumerate}
+            \item Receive the synthesized vector.
+            \item Multiply the signal with the assigned vector. (Notice that orthogonal vectors get cancels out.)
+            \item If the reuslt scaler is positive, then the user is sending 1. If the result scaler is negative, then the user is sending 0.
+        \end{enumerate}
+\end{enumerate}
+
+In step 1(b), how do we craft a vector such that after muliplication, positive means 1 and negative means 0? We do this by \textbf{applying linear combinitions of user vectors using 1s and -1s}. $\bz = a_1\bx_2+a_2\bx_2+\cdots+a_n\bx_n$. e.g.,
+\begin{equation*}
+    \bmat{1 & -1 & 1 & 1 & -1 & -1 & -1 & 1} \bmat{x_1\\x_2\\x_3\\x_4\\x_5\\x_6\\x_7\\x_8}
+\end{equation*}
+where $x_i$ is the vector assigned to user $i$. We can see that if user 1 sends 1, then the result after multiplied by the user vector again will be positive, vice versa. (For user $i$, the result will be $\bz \odot x_i=a_i(x_i\odot x_i)$.)
+
 
 \end{document}
