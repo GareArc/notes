@@ -311,5 +311,28 @@ In step 1(b), how do we craft a vector such that after muliplication, positive m
 \end{equation*}
 where $x_i$ is the vector assigned to user $i$. We can see that if user 1 sends 1, then the result after multiplied by the user vector again will be positive, vice versa. (For user $i$, the result will be $\bz \odot x_i=a_i(x_i\odot x_i)$.)
 
+\subsubsection{Frequency-division multiplexing accessing (FDMA)}
+Given the frequency $\mathit{f}$, the sine wave can be described as $\sin \mathit{f}t$.
+
+When we change amplitude over time to carry bits (AM), it is no longer a pure sine wave, but a \textbf{singal} $s(t)$.
+
+For \textbf{single-user} secario, that user gets all frequency channel.
+
+For \textbf{multi-user} secario, each user gets one frequency channel and apply FDMA.
+
+\begin{supp}
+    In opitcal fiber, people use term "Wave-length Division Multiplexing" (WDM) instead of FDM. But they basically mean the same thing.
+\end{supp}
+
+Other applications:
+\begin{itemize}
+    \item \textbf{Frequency Hopping}: change frequency over time to carry bits. (e.g. avoid enermy monitoring).
+    \item \textbf{Anti-jamming}: spreading bits over multiple frequencies makes jamming harder.
+    \item \textbf{Frequency-selective fading}: naturally, singals get distorted in the real world. But that distortion is greater or smaller depending upon the frequency that we're choosing. By spreading the signal over multiple frequencies, we can reduce the distortion, also known as \textbf{spread spectrum} ($\downarrow$ see below).
+\end{itemize}
+
+\paragraph{Spread spectrum} bits are spread over multiple frequencies. 
+
+We use frequencies with width from $\mathit{f}_1$ to $\mathit{f}_n$, this range is called \textbf{bandwidth}. e.g., $n=10$, $\mathit{f}_1=1$ GHz, $\mathit{f}_n=1.9$ GHz, then the bandwidth is $1.9-1=0.9$ GHz.
 
 \end{document}
