@@ -12,7 +12,7 @@
 \doclicenseThis
 \section*{Information}
 \begin{itemize}
-	\item No slides, no textbook.
+	\item Course website: \url{https://www.cs.purdue.edu/homes/ayg/CS525/}
 \end{itemize}
 \tableofcontents
 \newpage
@@ -26,14 +26,14 @@
 \end{itemize}
 
 \section{Parallel Programming Platforms}
-There is no slides but I found a past course slide for reference. \href{https://www.cs.purdue.edu/homes/ayg/CS525_SPR17/chap2_slides.pdf}{here}.
+Course slide for reference. \href{https://www.cs.purdue.edu/homes/ayg/CS525_SPR17/chap2_slides.pdf}{here}.
 
-\subsection{Processor}
+\section{Processor}
 Jobs of a processor: 1. fetch instructions. 2. decode instructions. 3. execute instructions. 4. store results.
 
-Most of the time, the instructions are of few types: e.g. MOVE, ADD, LD, FSD
+Most of the time, the instructions are of few types: e.g. MOVE, ADD, LD, STD
 
-\subsubsection{Pipeline Parallelism}
+\subsection{Pipeline Parallelism}
 Basic idea: an instruction can be executed while the next one is being decoded and the next one is being fetched.
 \imgc{pipelining.jpg}{Pipeline Parallelism}{0.6}
 
@@ -43,26 +43,94 @@ Limitations:
     \item \textbf{Conditional jumps}: the pipeline must be flushed when a branch is encountered. We solve by \blue{branch prediction}.
 \end{itemize}
 
-\paragraph{Superscalar Execution}\mbox{}
+\subsection{Superscalar Execution}
 Having multiple excution units (pipelines) to execute multiple instructions at the same time.
 \imgc{Processor-with-two-execution-units1.png}{Superscalar Execution Example with 2 Units}{0.6}
 
-How to schedule instructions to multiple pipelines? We consider:
-\begin{itemize}
-    \item \textbf{Data Dependencies}: the result of one operation is an input to the next.
-    \item \textbf{Read Dependencies}: the result of one operation is read by the next.
-    \item \textbf{Control Dependencies}: the next operation depends on the result of a conditional branch.
-    \item \textbf{Resource Dependencies}: the next operation requires the same resource as the current one.
-\end{itemize}
-
-We also \textbf{unroll the loops} to expose more parallelism.
-
-\paragraph{Difference between pipelining and superscalar}\mbox{}
-\begin{itemize}
+\subsubsection{Difference between pipelining and superscalar}
+\begin{itemize}[leftmargin=*]
     \item pipelining focuses on breaking down an instruction into sequential stages, whereas superscalar emphasizes on executing multiple instructions at the same time.
     \item pipelining typically has one execution unit, whereas superscalar has multiple execution units.
     \item superscalar is more parallel than pipelining.
 \end{itemize}
+
+\subsubsection{Scheduler}
+See video \href{https://youtu.be/uhi2BA9bl5A?si=mk9CfAYbRhP9ArV5&t=850}{here}.
+
+How to determine which instructions should run in parallel and schedule instructions to multiple pipelines? We consider:
+\begin{itemize}
+    \item \textbf{Data Dependencies}: the result of one operation is an input to the next.
+    \item \textbf{Control Dependencies}: the next operation depends on the result of a conditional branch.
+    \item \textbf{Resource Dependencies}: the next operation requires the resource (hardware such as AMU) as the current one (all hardwares are occupied).
+    % \item \textbf{Read Dependencies}: the result of one operation is read by the next.
+\end{itemize}
+
+We also \textbf{unroll the loops} to expose more parallelism.
+
+\paragraph{Methods to schedule instructions}\mbox\\
+\begin{itemize}
+    \item \textbf{In-order Issuing}: issue instructions \textbf{in the order}. When there is a dependency issue, stall the pipeline.
+    \item \textbf{Out-of-order Issuing (Dynamic Scheduling)}: find all the instructions in the prefetch queue that are ready to execute and issue them.
+\end{itemize}
+
+\subsubsection{Limitations of Superscalar}
+\begin{enumerate}[leftmargin=*]
+    \item Need to resolve dependencies in sub nano-seconds.
+    \item Has only limited scope since the instruction prefetch queue is small.
+\end{enumerate}
+
+\subsubsection{Very Long Instruction Word Processor (VLIW)}
+Move the complexity of scheduling to the compiler. The compiler will schedule the instructions and pack them into a single long instruction. The processor will then execute the packed instruction.
+
+\paragraph{Limitations of VLIW:}\mbox\\
+Unable to see the runtime information in the compiler. (e.g., memory access latency)
+
+\newpage
+
+\section{Memory}
+\imgc{mem-arch-simple.png}{Memory-Processor Architecture}{0.2}
+
+\subsection{Latency and Bandwidth}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Latency}: The time it takes for the processor to start / time to get data back from memory.
+    \item \textbf{Bandwidth}: Once the processor starts, how fast can it execute / number of words that got transferred per unit time.
+\end{itemize}
+
+\begin{info}
+    In memory, to increase bandwidth, when we fetch a word, we also get a parcel of words next to it.
+
+    e.g. if latency is 50 cycles and fetch speed is 1 word per cycle, then the first word is fetched at 50ns, and the rest of the words are fetched at 1ns. If the memory is set to fetch 4 words, then we have $50+1+1+1$ throughput $\rightarrow 4\textrm{ words} /53\textrm{ ns}$ bandwidth.
+\end{info}
+
+\subsection{Caches}
+To address the latency and bandwidth bottleneck, we use caches --- fast memory near the processor.
+\imgc{mem-arch-with-cache.png}{Memory-Processor Architecture with Cache}{0.25}
+
+\subsubsection{Mapping data from memory to cache}
+Cache is a small memory, so we need to map data from a large storage to a small storage. 
+
+\paragraph{Direct Map Cache}\mbox\\
+\imgc{Block-diagram-of-a-direct-mapped-cache.png}{Direct Map Cache}{0.4}
+\begin{enumerate}[Step 1., leftmargin=4em]
+    \item Take the lower bits of the address and use them as the index to the cache. e.g. if the cache has $2^{13}$ entries, then the lower 13 bits of the address will be used as the index to the cache. i.e. $c=m\%2^{13}$.
+    \item Determine if the data is already in the cache by comparing the upper bits of the address (tag). If all match, then the data is in the cache. Otherwise, the data is not in the cache, and we update the upper bits and write in the data.
+\end{enumerate}
+
+Issue: what should the replacement policy be? Theoratically, we should replace the least recently used (LRU) data. How? Set-associated cache $\downarrow$.
+
+\paragraph{Set-Associated Cache}\mbox\\
+Approximating LRU (not exactly the same). Treat the cache as $n$ independent sub-sized caches. Each memory address now maps to $n$ cache entries. For each word in cache, we have a time tag to indicate when it was last used. When we need to replace a word, we replace the old one. When searching for a word, we search $n$ entries and return the one that matches.
+
+\imgc{2-way-set-ass-cachemap.png}{Two-way Set-Associated Cache}{0.5}
+
+\subsection{Spatiality and Locality}
+\subsubsection{Dot product}
+Video \href{https://www.youtube.com/watch?v=rIwEPyWAsDo}{here}.
+When access is spatical localized and cache access is in bulk, we get good performance.
+\subsubsection{Matrix multiplication}
+
+
+
 
 
 \end{document}
