@@ -25,9 +25,6 @@
     \item Learning \& Data Analysis. e.g., machine learning, data mining, etc.
 \end{itemize}
 
-\section{Parallel Programming Platforms}
-Course slide for reference. \href{https://www.cs.purdue.edu/homes/ayg/CS525_SPR17/chap2_slides.pdf}{here}.
-
 \section{Processor}
 Jobs of a processor: 1. fetch instructions. 2. decode instructions. 3. execute instructions. 4. store results.
 
@@ -128,9 +125,45 @@ Approximating LRU (not exactly the same). Treat the cache as $n$ independent sub
 Video \href{https://www.youtube.com/watch?v=rIwEPyWAsDo}{here}.
 When access is spatical localized and cache access is in bulk, we get good performance.
 \subsubsection{Matrix multiplication}
+\imgc{mat-mut-orders.png}{Two Methods of Multiplication}{0.6}
+If the array is laid out in \textbf{row major}, method 1 is better since the first matrix in method 2 wastes cache line every time because it iterates in column.
 
+\paragraph{Subdividing matrix}\mbox\\
+Even we ensure that the data layout is aligned properly like described above. Our program sitll cannot run as efficient as we expect because \textbf{the cache is too small to contain a large matrix} and therefore we end up accessing the same part of the matrix again and again.
 
+\underline{Solution:} Subdividing matrix into small matrices so that it can fit in the cache.
+\imgc{subdiv-mat_illu.png}{Break Matrix into 4 Submatrices}{0.5}
 
+\subsection{Use concurrency to hide lantency}
+Create \textbf{multiple threads} to hide the latency of memory access. e.g. when we are waiting for data from memory in a thread, we can do some computation in another thread. But we need to be aware of the \textbf{memory bandwidth} and \textbf{processor context}. If memeory bandwidth and contexts are enough, then we can create more threads and can hide more latency.
 
+\section{Parallel Platforms}
+Design concepts of parallel platforms (e.g., multi-core processors):
+\begin{itemize}
+    \item Control Structure: synchronization, how to execute codes.
+    \item Communication Structure: share data, how to communicate.
+\end{itemize}
+
+\subsection{Control Structure}
+
+\paragraph{Simple Instruction Multiple Data (SIMD)} (Data Parallelism), execute the same instruction on multiple different data.
+
+e.g. Image processing: applying convolution operation (filters) repeatedly on different pixels of an image. 
+
+\paragraph{Multiple Instruction Multiple Data (MIMD)} execute different instructions on different data.
+
+\paragraph{Single Program Multiple Data (SPMD)} execute the same program on different data.
+
+\subsection{Communication Structure}
+\paragraph{Shared Memory} All processors share the same memory.
+
+Approach 1: Just use a shared memory and all processors can access it.
+\imgc{simple-shared-mem-demo.png}{Naive Shared Memory Design}{0.4}
+
+Issue: Every processor will have its own cache. When one processor writes to the memory, other processors' caches are not updated.
+\imgc{simple-shared-mem-demo-cache.png}{Naive Shared Memory Design with Cache}{0.4}
+
+Approach 2: Every processor has its own memory section and we somehow interconnect them.
+\imgc{simple-shared-mem-ind-demo.png}{Naive Shared Memory Design with Individual Memory}{0.4}
 
 \end{document}
